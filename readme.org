@@ -1,0 +1,50 @@
+* Backstage Docker
+An easy to configure, [[https://docs.docker.com/compose/][Docker Compose]] for [[https://backstage.io/][Backstage]]. Includes support for
+- Lets Encrypt ssl cert for https support, including http -> http2 redirect
+- Basic Auth, for restricted access
+- Postgres database on persistent volume
+- An OpenSSH server to publish TechDocs to.
+** Extended Documentation
+This is a minimilist readme. See Bringing up Backstage for detailed coverage.
+** Requirements
+*** Infrastructure
+- Runs on any machine supporting Docker, e.g., Digital Ocean, AWS EC2, bare metal, etc.
+- No reliance on cloud storage (for TechDocs)
+- Access to DNS A or CNAME record (for https)
+*** Prerequisites
+- A Docker image of the Backstage application [[https://backstage.io/docs/getting-started/create-an-app][created via npx]] with a compatible [[https://github.com/rmorison/backstage-app/blob/main/app-config.production.yaml][app-config.production.yaml]]
+- A registry url for that Backstage app image, e.g., ~ghcr.io/rmorison/backstage-app:latest~ (from [[https://github.com/rmorison/backstage-app/pkgs/container/backstage-app][my build into ghcr.io]])
+- A ~.env~ file for the Docker compose, based on [[https://github.com/rmorison/backstage-docker/blob/main/sample.env][the sample.env]]
+- A server with [[https://docs.docker.com/engine/install/][Docker installed]]
+** Step by Step
+- Clone or copy this repo on your server
+  #+begin_src shell
+    git clone https://github.com/rmorison/backstage-docker.git
+  #+end_src
+- Create a ~.env~ file alongside the ~docker-compose.yml~; start with the ~sample.env~; see the [[*Env Docs][Env Docs]] section below
+  #+begin_src shell
+    cp sample.env .env
+    vi .env
+  #+end_src
+- Create a ~.htpasswd~ file with lines of output from the ~htpasswd~ program
+  #+begin_src shell
+    sudo apt install --yes apache2-utils
+    htpasswd -bn backstage change-this-password >>.htpasswd
+  #+end_src
+- Point a domain to your server's IP address via A or CNAME record (for Lets Encrypt certificate). That procedure is DNS provider specific, not covered here.
+- Bring up the docker cluster
+** Env Docs
+- ~TRAEFIK_API_INSECURE~: true/false to enable/disable traefik dashboard on port 8080; you could setup an ssh tunnel to access
+- ~BACKSTAGE_DOMAIN~: DNS A or CNAME that points to this server's IP address
+- ~BACKSTAGE_IMAGE~: Docker image path of Backstage app, e.g., ~ghcr.io/rmorison/backstage-app:latest~
+- ~TECHDOCS_DIR~: mount point of published TechDocs tree in containers, e.g., ~/techdocs~
+- ~TECHDOCS_SSH_PUBLIC_KEY~: ssh public key (be sure to quote) for scp from a [[https://github.com/rmorison/backstage-app/blob/main/.github/workflows/techdocs.yml][TechDocs publish workflow]]
+  - Tip: run ~ssh-keygen -t rsa -b 4096 -N "" -C techdocs -f techdocs_rsa~, the contents of ~techdocs_rsa.pub~ goes here, the corresponding private key goes into the ~TECHDOCS_SSH_PRIVATE_KEY~ secret in the [[https://github.com/rmorison/backstage-app/blob/main/.github/workflows/techdocs.yml][TechDocs publish workflow]]
+  - Warning: store the private key file securely
+- ~TECHDOCS_UID~: set to the account UID running docker compose, e.g., 1000 on EC2; for owner of ~./techdocs~ tree
+- ~TECHDOCS_GID~: set to the account GID running docker compose, e.g., 1000 on EC2; for owner of ~./techdocs~ tree
+- ~POSTGRES_HOST~: needs to match postgres container in docker-compose.yml, e.g., ~db~
+- ~POSTGRES_PORT~: default ~5432~
+- ~POSTGRES_USER~: Postgres backstage database user
+- ~POSTGRES_PASSWORD~: Postgres backstage database user password
+- ~LETSENCRYPT_ADMIN_EMAIL~: Your admin email for Lets Encrypt cert

@@ -1,0 +1,82 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v2.9
+    command: 
+      - "--api.insecure=${TRAEFIK_API_INSECURE}"
+      - "--providers.docker" 
+      - "--log.level=INFO"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesResolvers.tlsResolver.acme.email=${LETSENCRYPT_ADMIN_EMAIL}"
+      - "--certificatesResolvers.tlsResolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesResolvers.tlsResolver.acme.tlschallenge=true"
+    ports:
+      - "80:80"
+      - "443:443"
+      # Traefik admin site
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - letsencrypt:/letsencrypt
+      - ./.htpasswd:/etc/traefik/htpasswd
+      
+  backstage:
+    image: ${BACKSTAGE_IMAGE}
+    depends_on:
+      - db
+      - techdocs
+    env_file: .env
+    volumes:
+      - ./techdocs:${TECHDOCS_DIR}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backstage.service=backstage"
+      - "traefik.http.routers.backstage.rule=Host(`${BACKSTAGE_DOMAIN}`)"
+      - "traefik.http.routers.backstage.entrypoints=web"
+      - "traefik.http.routers.backstage.middlewares=backstage-redirect-secure"
+      - "traefik.http.routers.backstage-secure.rule=Host(`${BACKSTAGE_DOMAIN}`)"
+      - "traefik.http.routers.backstage-secure.entrypoints=websecure"
+      - "traefik.http.routers.backstage-secure.tls.certresolver=tlsResolver"
+      - "traefik.http.services.backstage-secure.loadbalancer.server.port=7007"
+      - "traefik.http.routers.backstage-secure.middlewares=backstage-auth"
+      # Middleware
+      - "traefik.http.middlewares.backstage-redirect-secure.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.backstage-redirect-secure.redirectscheme.permanent=true"
+      - "traefik.http.middlewares.backstage-auth.basicauth.usersFile=/etc/traefik/htpasswd"
+
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+
+  techdocs:
+    image: lscr.io/linuxserver/openssh-server:latest
+    environment:
+      - PUID=${TECHDOCS_UID}
+      - PGID=${TECHDOCS_GID}
+      - PUBLIC_KEY=${TECHDOCS_SSH_PUBLIC_KEY}
+      - USER_NAME=techdocs
+    volumes:
+      - ssh-config:/config
+      - ./techdocs:${TECHDOCS_DIR}
+    ports:
+      - 2222:2222
+    restart: unless-stopped
+    
+volumes:
+  db:
+    driver: local
+  ssh-config:
+    driver: local
+  letsencrypt:
+    driver: local

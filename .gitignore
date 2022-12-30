@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Logs
+logs
+*.log
+
+# dotenv environment variables file
+.env
+.env.test
+
+# Sensitive credentials
+*-credentials.yaml
+
+# htpasswd basic auth file
+.htpasswd
