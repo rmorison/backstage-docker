@@ -33,6 +33,12 @@ This is a minimilist readme. See Bringing up Backstage for detailed coverage.
   #+end_src
 - Point a domain to your server's IP address via A or CNAME record (for Lets Encrypt certificate). That procedure is DNS provider specific, not covered here.
 - Bring up the docker cluster
+  #+begin_src shell
+    docker compose up --build
+  #+end_src
+- Visit your instance at your ~BACKSTAGE_DOMAIN~ setting
+  - Import catalogs via the ~/catalog-import~ path
+  - Publish TechDocs via your external workflows: [[https://github.com/rmorison/backstage-app/blob/main/.github/workflows/techdocs.yml][GH Action example]]
 ** Env Docs
 - ~TRAEFIK_API_INSECURE~: true/false to enable/disable traefik dashboard on port 8080; you could setup an ssh tunnel to access
 - ~BACKSTAGE_DOMAIN~: DNS A or CNAME that points to this server's IP address
