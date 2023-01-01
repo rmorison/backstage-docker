@@ -5,7 +5,7 @@ An easy to configure, [[https://docs.docker.com/compose/][Docker Compose]] for [
 - Postgres database on persistent volume
 - An OpenSSH server to publish TechDocs to.
 ** Extended Documentation
-This is a minimilist readme. See Bringing up Backstage for detailed coverage.
+This Docker compose setup depends on a Backstage app as described in Bringing up Backstage, e.g., [[https://github.com/rmorison/backstage-app][backstage-app]]. 
 ** Requirements
 *** Infrastructure
 - Runs on any machine supporting Docker, e.g., Digital Ocean, AWS EC2, bare metal, etc.
@@ -16,10 +16,16 @@ This is a minimilist readme. See Bringing up Backstage for detailed coverage.
 - A registry url for that Backstage app image, e.g., ~ghcr.io/rmorison/backstage-app:latest~ (from [[https://github.com/rmorison/backstage-app/pkgs/container/backstage-app][my build into ghcr.io]])
 - A ~.env~ file for the Docker compose, based on [[https://github.com/rmorison/backstage-docker/blob/main/sample.env][the sample.env]]
 - A server with [[https://docs.docker.com/engine/install/][Docker installed]]
+*** TechDocs Publish SSH Keypair
+You'll need a public/private keypair to setup the TechDocs external publishing. I recommend you *do not* run the following on the server you're hosting with, but on another, secure machine. It's mostly important that you secure the private key, and not leave it lying around. Keeping it in a ~~/.ssh~  dir is ok. A password vault or manager is probably better, [[https://www.schneier.com/blog/archives/2022/12/lastpass-breach.html][current events notwithstanding]].
+#+begin_src shell
+  ssh-keygen -t rsa -b 4096 -N "" -C techdocs -f techdocs_rsa
+#+end_src
 ** Step by Step
 - Clone or copy this repo on your server
   #+begin_src shell
-    git clone https://github.com/rmorison/backstage-docker.git
+    git clone git@github.com:rmorison/backstage-docker.git
+    cd backstage-docker
   #+end_src
 - Create a ~.env~ file alongside the ~docker-compose.yml~; start with the ~sample.env~; see the [[*Env Docs][Env Docs]] section below
   #+begin_src shell
