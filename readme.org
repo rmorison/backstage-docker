@@ -17,7 +17,7 @@ This Docker compose setup depends on a Backstage app as described in Bringing up
 - A ~.env~ file for the Docker compose, based on [[https://github.com/rmorison/backstage-docker/blob/main/sample.env][the sample.env]]
 - A server with [[https://docs.docker.com/engine/install/][Docker installed]]
 *** TechDocs Publish SSH Keypair
-You'll need a public/private keypair to setup the TechDocs external publishing. I recommend you *do not* run the following on the server you're hosting with, but on another, secure machine. It's mostly important that you secure the private key, and not leave it lying around. Keeping it in a ~~/.ssh~  dir is ok. A password vault or manager is probably better, [[https://www.schneier.com/blog/archives/2022/12/lastpass-breach.html][current events notwithstanding]].
+You'll need a public/private keypair to setup the TechDocs external publishing. I recommend you *do not* run the following on the server you're hosting with, but on another, secure machine. It's mostly important that you secure the private key, and not leave it lying around. Keeping it in your ~.ssh~  dir is ok. A password vault or manager is probably better, [[https://www.schneier.com/blog/archives/2022/12/lastpass-breach.html][current events notwithstanding]].
 #+begin_src shell
   ssh-keygen -t rsa -b 4096 -N "" -C techdocs -f techdocs_rsa
 #+end_src
