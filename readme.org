@@ -15,7 +15,7 @@ This Docker compose setup depends on a Backstage app as described in Bringing up
 - A Docker image of the Backstage application [[https://backstage.io/docs/getting-started/create-an-app][created via npx]] with a compatible [[https://github.com/rmorison/backstage-app/blob/main/app-config.production.yaml][app-config.production.yaml]]
 - A registry url for that Backstage app image, e.g., ~ghcr.io/rmorison/backstage-app:latest~ (from [[https://github.com/rmorison/backstage-app/pkgs/container/backstage-app][my build into ghcr.io]])
 - A ~.env~ file for the Docker compose, based on [[https://github.com/rmorison/backstage-docker/blob/main/sample.env][the sample.env]]
-- A server with [[https://docs.docker.com/engine/install/][Docker installed]]
+- A server with [[https://docs.docker.com/engine/install/][Docker installed]], with ports 80, 443, and 2222 open (we use 2222 for publishing TechDocs over scp)
 *** TechDocs Publish SSH Keypair
 You'll need a public/private keypair to setup the TechDocs external publishing. I recommend you *do not* run the following on the server you're hosting with, but on another, secure machine. It's mostly important that you secure the private key, and not leave it lying around. Keeping it in your ~.ssh~  dir is ok. A password vault or manager is probably better, [[https://www.schneier.com/blog/archives/2022/12/lastpass-breach.html][current events notwithstanding]].
 #+begin_src shell
