@@ -47,6 +47,8 @@ You'll need a public/private keypair to setup the TechDocs external publishing. 
   - Publish TechDocs via your external workflows: [[https://github.com/rmorison/backstage-app/blob/main/.github/workflows/techdocs.yml][GH Action example]]
 ** Env Docs
 - ~TRAEFIK_API_INSECURE~: true/false to enable/disable traefik dashboard on port 8080; you could setup an ssh tunnel to access
+- ~BACKSTAGE_APP_TITLE~: the ~app.title~ setting in the Backstage app config
+- ~BACKSTAGE_ORGANIZATION_NAME~: the ~organization.name~ setting in the Backstage app config
 - ~BACKSTAGE_DOMAIN~: DNS A or CNAME that points to this server's IP address
 - ~BACKSTAGE_IMAGE~: Docker image path of Backstage app, e.g., ~ghcr.io/rmorison/backstage-app:latest~
 - ~TECHDOCS_DIR~: mount point of published TechDocs tree in containers, e.g., ~/techdocs~
